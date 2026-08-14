@@ -1499,6 +1499,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "a"
             }
           ],
@@ -1527,6 +1528,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "s"
             }
           ],
@@ -1555,6 +1557,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "d"
             }
           ],
@@ -1583,6 +1586,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "f"
             }
           ],
@@ -1611,6 +1615,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "j"
             }
           ],
@@ -1639,6 +1644,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "k"
             }
           ],
@@ -1667,6 +1673,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "l"
             }
           ],
@@ -1695,6 +1702,7 @@
           ],
           "to_if_alone": [
             {
+              "halt": true,
               "key_code": "semicolon"
             }
           ],

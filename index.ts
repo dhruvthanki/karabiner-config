@@ -28,10 +28,15 @@ const MOD_HOLD_MS = 200
 // interrupts first, to_delayed_action's to_if_canceled fires the plain
 // letter instead. Tradeoff: deliberate chords (e.g. Cmd+C) now need a
 // genuine ~200ms hold before the modifier is live, not just a keypress.
+//
+// `halt: true` on toIfAlone is required: without it, a quick tap fires
+// to_if_alone (sending the letter) but leaves the pending to_delayed_action
+// scheduled, which then also fires later and sends the same letter again
+// (doubled output). `halt` explicitly cancels any pending to_delayed_action.
 function modTap(key: FromKeyParam & ToKeyParam, modifier: ToKeyParam) {
   return map(key)
     .toIfHeldDown(modifier)
-    .toIfAlone(key)
+    .toIfAlone(key, undefined, { halt: true })
     .toDelayedAction([], toKey(key))
     .parameters({
       'basic.to_if_held_down_threshold_milliseconds': MOD_HOLD_MS,
