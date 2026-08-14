@@ -1,0 +1,1720 @@
+{
+  "rules": [
+    {
+      "description": "Layer - nav",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock"
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "nav",
+                "value": 1
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 1
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_unless",
+              "name": "nav",
+              "value": 1
+            },
+            {
+              "type": "variable_unless",
+              "name": "__layer",
+              "value": 1
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "escape"
+            }
+          ],
+          "to_after_key_up": [
+            {
+              "set_variable": {
+                "name": "nav",
+                "value": 0
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 0
+              }
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "h"
+          },
+          "to": [
+            {
+              "key_code": "left_arrow"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "j"
+          },
+          "to": [
+            {
+              "key_code": "down_arrow"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k"
+          },
+          "to": [
+            {
+              "key_code": "up_arrow"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "l"
+          },
+          "to": [
+            {
+              "key_code": "right_arrow"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "y"
+          },
+          "to": [
+            {
+              "key_code": "home"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "semicolon"
+          },
+          "to": [
+            {
+              "key_code": "end"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "u"
+          },
+          "to": [
+            {
+              "key_code": "page_down"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "i"
+          },
+          "to": [
+            {
+              "key_code": "page_up"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "n"
+          },
+          "to": [
+            {
+              "key_code": "delete_or_backspace"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "m"
+          },
+          "to": [
+            {
+              "key_code": "delete_forward"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "nav",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Layer - sym",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "spacebar"
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "sym",
+                "value": "__delay"
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 1
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 0
+            },
+            {
+              "type": "variable_unless",
+              "name": "__layer",
+              "value": 1
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "spacebar"
+            },
+            {
+              "set_variable": {
+                "name": "sym",
+                "value": 0
+              }
+            }
+          ],
+          "to_after_key_up": [
+            {
+              "set_variable": {
+                "name": "sym",
+                "value": 0
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 0
+              }
+            }
+          ],
+          "to_if_held_down": [
+            {
+              "set_variable": {
+                "name": "sym",
+                "value": 1
+              }
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "spacebar",
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "sym",
+                    "value": "__delay"
+                  }
+                ]
+              },
+              {
+                "set_variable": {
+                  "name": "sym",
+                  "value": 0
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "sym",
+                    "value": "__delay"
+                  }
+                ]
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200,
+            "basic.to_if_alone_timeout_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "q"
+          },
+          "to": [
+            {
+              "key_code": "1",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "w"
+          },
+          "to": [
+            {
+              "key_code": "2",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "e"
+          },
+          "to": [
+            {
+              "key_code": "3",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "r"
+          },
+          "to": [
+            {
+              "key_code": "4",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "t"
+          },
+          "to": [
+            {
+              "key_code": "5",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "a"
+          },
+          "to": [
+            {
+              "key_code": "hyphen"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "s"
+          },
+          "to": [
+            {
+              "key_code": "equal_sign"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d"
+          },
+          "to": [
+            {
+              "key_code": "open_bracket"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "f"
+          },
+          "to": [
+            {
+              "key_code": "close_bracket"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "g"
+          },
+          "to": [
+            {
+              "key_code": "backslash"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "z"
+          },
+          "to": [
+            {
+              "key_code": "grave_accent_and_tilde"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "x"
+          },
+          "to": [
+            {
+              "key_code": "grave_accent_and_tilde",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "c"
+          },
+          "to": [
+            {
+              "key_code": "9",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "v"
+          },
+          "to": [
+            {
+              "key_code": "0",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "b"
+          },
+          "to": [
+            {
+              "key_code": "hyphen",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "quote"
+          },
+          "to": [
+            {
+              "key_code": "quote",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "comma"
+          },
+          "to": [
+            {
+              "key_code": "comma",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "period"
+          },
+          "to": [
+            {
+              "key_code": "period",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "slash"
+          },
+          "to": [
+            {
+              "key_code": "slash",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "semicolon"
+          },
+          "to": [
+            {
+              "key_code": "semicolon",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "h"
+          },
+          "to": [
+            {
+              "key_code": "backslash",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "y"
+          },
+          "to": [
+            {
+              "key_code": "7",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "u"
+          },
+          "to": [
+            {
+              "key_code": "8",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "n"
+          },
+          "to": [
+            {
+              "key_code": "equal_sign",
+              "modifiers": [
+                "shift"
+              ]
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "sym",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Layer - num",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "return_or_enter"
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "num",
+                "value": "__delay"
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 1
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 0
+            },
+            {
+              "type": "variable_unless",
+              "name": "__layer",
+              "value": 1
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "return_or_enter"
+            },
+            {
+              "set_variable": {
+                "name": "num",
+                "value": 0
+              }
+            }
+          ],
+          "to_after_key_up": [
+            {
+              "set_variable": {
+                "name": "num",
+                "value": 0
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 0
+              }
+            }
+          ],
+          "to_if_held_down": [
+            {
+              "set_variable": {
+                "name": "num",
+                "value": 1
+              }
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "return_or_enter",
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "num",
+                    "value": "__delay"
+                  }
+                ]
+              },
+              {
+                "set_variable": {
+                  "name": "num",
+                  "value": 0
+                },
+                "conditions": [
+                  {
+                    "type": "variable_if",
+                    "name": "num",
+                    "value": "__delay"
+                  }
+                ]
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200,
+            "basic.to_if_alone_timeout_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "q"
+          },
+          "to": [
+            {
+              "key_code": "7"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "w"
+          },
+          "to": [
+            {
+              "key_code": "8"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "e"
+          },
+          "to": [
+            {
+              "key_code": "9"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "a"
+          },
+          "to": [
+            {
+              "key_code": "4"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "s"
+          },
+          "to": [
+            {
+              "key_code": "5"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d"
+          },
+          "to": [
+            {
+              "key_code": "6"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "z"
+          },
+          "to": [
+            {
+              "key_code": "1"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "x"
+          },
+          "to": [
+            {
+              "key_code": "2"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "c"
+          },
+          "to": [
+            {
+              "key_code": "3"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "v"
+          },
+          "to": [
+            {
+              "key_code": "0"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "num",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Layer - fun",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "tab"
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "fun",
+                "value": 1
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 1
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_unless",
+              "name": "fun",
+              "value": 1
+            },
+            {
+              "type": "variable_unless",
+              "name": "__layer",
+              "value": 1
+            }
+          ],
+          "to_if_alone": [],
+          "to_after_key_up": [
+            {
+              "set_variable": {
+                "name": "fun",
+                "value": 0
+              }
+            },
+            {
+              "set_variable": {
+                "name": "__layer",
+                "value": 0
+              }
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "1"
+          },
+          "to": [
+            {
+              "key_code": "f1"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "2"
+          },
+          "to": [
+            {
+              "key_code": "f2"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "3"
+          },
+          "to": [
+            {
+              "key_code": "f3"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "4"
+          },
+          "to": [
+            {
+              "key_code": "f4"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "5"
+          },
+          "to": [
+            {
+              "key_code": "f5"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "6"
+          },
+          "to": [
+            {
+              "key_code": "f6"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "7"
+          },
+          "to": [
+            {
+              "key_code": "f7"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "8"
+          },
+          "to": [
+            {
+              "key_code": "f8"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "9"
+          },
+          "to": [
+            {
+              "key_code": "f9"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "0"
+          },
+          "to": [
+            {
+              "key_code": "f10"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "h"
+          },
+          "to": [
+            {
+              "consumer_key_code": "display_brightness_decrement"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "l"
+          },
+          "to": [
+            {
+              "consumer_key_code": "display_brightness_increment"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "j"
+          },
+          "to": [
+            {
+              "consumer_key_code": "volume_decrement"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k"
+          },
+          "to": [
+            {
+              "consumer_key_code": "volume_increment"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "semicolon"
+          },
+          "to": [
+            {
+              "consumer_key_code": "mute"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "n"
+          },
+          "to": [
+            {
+              "consumer_key_code": "play_or_pause"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "comma"
+          },
+          "to": [
+            {
+              "consumer_key_code": "rewind"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "period"
+          },
+          "to": [
+            {
+              "consumer_key_code": "fast_forward"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "fun",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Home row mods (Mac-tuned order)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "a"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "left_control"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "a"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "a"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "s"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "left_option"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "s"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "s"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "left_shift"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "d"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "d"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "f"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "left_command"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "f"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "f"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "j"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "right_command"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "j"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "j"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "right_shift"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "k"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "k"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "l"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "right_option"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "l"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "l"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "semicolon"
+          },
+          "to_if_held_down": [
+            {
+              "key_code": "right_control"
+            }
+          ],
+          "to_if_alone": [
+            {
+              "key_code": "semicolon"
+            }
+          ],
+          "to_delayed_action": {
+            "to_if_invoked": [],
+            "to_if_canceled": [
+              {
+                "key_code": "semicolon"
+              }
+            ]
+          },
+          "parameters": {
+            "basic.to_if_held_down_threshold_milliseconds": 200,
+            "basic.to_delayed_action_delay_milliseconds": 200
+          }
+        }
+      ]
+    }
+  ],
+  "parameters": {
+    "basic.to_if_alone_timeout_milliseconds": 250
+  }
+}

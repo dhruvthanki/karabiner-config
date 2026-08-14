@@ -7,6 +7,7 @@ import {
   FromKeyParam,
   ToKeyParam,
 } from 'karabiner.ts'
+import { writeFileSync } from 'fs'
 
 const profile = 'TS-custom'
 
@@ -158,8 +159,21 @@ const funLayer = layer('tab', 'fun')
 // variable) must come before the unconditioned home row mods rule, or the
 // home row mods would always win on every key they share (a/s/d/f, j/k/l/;)
 // and the layers' own remaps of those keys would never fire.
-writeToProfile(
-  profile,
-  [navLayer, symLayer, numLayer, funLayer, homeRowMods],
-  { 'basic.to_if_alone_timeout_milliseconds': 250 },
+const rules = [navLayer, symLayer, numLayer, funLayer, homeRowMods]
+const parameters = { 'basic.to_if_alone_timeout_milliseconds': 250 }
+
+writeToProfile(profile, rules, parameters)
+
+// Save a copy of what actually got generated, tracked in git as a
+// reference — not the source of truth (index.ts is), just a readable
+// snapshot of its output. Built directly from the same rule objects passed
+// to writeToProfile above, NOT by reading karabiner.json back — that file
+// is also watched/rewritten by Karabiner-Elements' own background process,
+// and reading it back immediately after our own write raced that process
+// and corrupted the live config (twice). Serializing our own in-memory
+// objects instead avoids touching that file a second time.
+writeFileSync(
+  'karabiner.generated.json',
+  JSON.stringify({ rules: rules.map((r) => r.build()), parameters }, null, 2) +
+    '\n',
 )
