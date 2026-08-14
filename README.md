@@ -84,6 +84,18 @@ Number row becomes F-keys, right hand becomes media controls:
 
 ## Design notes
 
+- **Home row mods use `to_if_held_down`, not plain `to`.** Plain
+  `to()`+`toIfAlone()` combines with a second key the instant it's pressed,
+  with no timing check — so fast rolling typing (e.g. "ah") can read as a
+  modifier hold and misfire, same class of bug as the Space/Return rollover
+  issue. Each home row mod now requires a genuine ~200ms hold
+  (`MOD_HOLD_MS`) before it arms as a modifier; if another key interrupts
+  before that, `to_delayed_action`'s `to_if_canceled` sends the plain
+  letter instead. This is Karabiner's own documented pattern for "letter
+  key acts as a modifier when held" (see their example: "Change f key to
+  left shift when held down"). Tradeoff: deliberate chords like Cmd+C now
+  need an actual ~200ms hold, not just a keypress — tune `MOD_HOLD_MS` in
+  `index.ts` if that feels too slow or too trigger-happy.
 - **Rule order matters.** Karabiner applies only the first matching
   manipulator in document order, with no special priority for conditioned
   vs. unconditioned ones. The four layers are listed before the home row

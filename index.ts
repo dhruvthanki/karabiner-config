@@ -1,27 +1,61 @@
-import { writeToProfile, rule, map, layer } from 'karabiner.ts'
+import {
+  writeToProfile,
+  rule,
+  map,
+  layer,
+  toKey,
+  FromKeyParam,
+  ToKeyParam,
+} from 'karabiner.ts'
 
 const profile = 'TS-custom'
 
+// How long a home row mod must be held before it "arms" as a modifier.
+const MOD_HOLD_MS = 200
+
+// A rollover-safe mod-tap: hold past MOD_HOLD_MS -> modifier, tap-release
+// before that -> the letter. This is Karabiner's own documented pattern for
+// "letter key acts as a modifier when held" (see the official example
+// "Change f key to left shift when held down" using to_if_held_down +
+// to_delayed_action instead of plain to()).
+//
+// Plain to()+toIfAlone() (what we used before) combines with a second key
+// the INSTANT it's pressed, no timing check at all — so fast rolling
+// typing (e.g. "ah") can read as a modifier hold and misfire, the same
+// rollover bug we already hit and fixed on Space/Return. to_if_held_down
+// requires the threshold to actually elapse before it arms; if another key
+// interrupts first, to_delayed_action's to_if_canceled fires the plain
+// letter instead. Tradeoff: deliberate chords (e.g. Cmd+C) now need a
+// genuine ~200ms hold before the modifier is live, not just a keypress.
+function modTap(key: FromKeyParam & ToKeyParam, modifier: ToKeyParam) {
+  return map(key)
+    .toIfHeldDown(modifier)
+    .toIfAlone(key)
+    .toDelayedAction([], toKey(key))
+    .parameters({
+      'basic.to_if_held_down_threshold_milliseconds': MOD_HOLD_MS,
+      'basic.to_delayed_action_delay_milliseconds': MOD_HOLD_MS,
+    })
+}
+
 // --- Home row mods: Mac-tuned order, tap = letter ---
-// Karabiner has no true firmware-level mod-tap, so this is built from
-// to()/toIfAlone() per key. Order is Ctrl/Opt/Shift/Cmd pinky->index
-// (mirrored), NOT Miryoku's default GACS (Cmd/Opt/Ctrl/Shift) — GACS puts
-// Cmd on the pinky, which is tuned for Windows/generic use where Ctrl
-// dominates. On macOS Cmd is used constantly and Ctrl rarely, so Cmd goes
-// on the index (strongest finger, adjacent to Shift for Cmd+Shift chords)
-// and Ctrl goes on the pinky.
+// Order is Ctrl/Opt/Shift/Cmd pinky->index (mirrored), NOT Miryoku's
+// default GACS (Cmd/Opt/Ctrl/Shift) — GACS puts Cmd on the pinky, tuned for
+// Windows/generic use where Ctrl dominates. On macOS Cmd is used constantly
+// and Ctrl rarely, so Cmd goes on the index (strongest finger, adjacent to
+// Shift for Cmd+Shift chords) and Ctrl goes on the pinky.
 const homeRowMods = rule('Home row mods (Mac-tuned order)').manipulators([
   // Left hand, pinky -> index: Ctrl, Opt, Shift, Cmd
-  map('a').to('left_control').toIfAlone('a'),
-  map('s').to('left_option').toIfAlone('s'),
-  map('d').to('left_shift').toIfAlone('d'),
-  map('f').to('left_command').toIfAlone('f'),
+  modTap('a', 'left_control'),
+  modTap('s', 'left_option'),
+  modTap('d', 'left_shift'),
+  modTap('f', 'left_command'),
 
   // Right hand, index -> pinky (mirrored): Cmd, Shift, Opt, Ctrl
-  map('j').to('right_command').toIfAlone('j'),
-  map('k').to('right_shift').toIfAlone('k'),
-  map('l').to('right_option').toIfAlone('l'),
-  map('semicolon').to('right_control').toIfAlone('semicolon'),
+  modTap('j', 'right_command'),
+  modTap('k', 'right_shift'),
+  modTap('l', 'right_option'),
+  modTap('semicolon', 'right_control'),
 ])
 
 // --- Nav layer: hold Caps Lock (left pinky), tap = Escape. Content on right hand. ---
