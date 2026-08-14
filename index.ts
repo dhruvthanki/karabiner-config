@@ -2,19 +2,26 @@ import { writeToProfile, rule, map, layer } from 'karabiner.ts'
 
 const profile = 'TS-custom'
 
-// --- Home row mods: mirrored GACS (Cmd / Opt / Ctrl / Shift), tap = letter ---
-const homeRowMods = rule('Home row mods (mirrored GACS)').manipulators([
-  // Left hand, pinky -> index
-  map('a').to('left_command').toIfAlone('a'),
+// --- Home row mods: Mac-tuned order, tap = letter ---
+// Karabiner has no true firmware-level mod-tap, so this is built from
+// to()/toIfAlone() per key. Order is Ctrl/Opt/Shift/Cmd pinky->index
+// (mirrored), NOT Miryoku's default GACS (Cmd/Opt/Ctrl/Shift) — GACS puts
+// Cmd on the pinky, which is tuned for Windows/generic use where Ctrl
+// dominates. On macOS Cmd is used constantly and Ctrl rarely, so Cmd goes
+// on the index (strongest finger, adjacent to Shift for Cmd+Shift chords)
+// and Ctrl goes on the pinky.
+const homeRowMods = rule('Home row mods (Mac-tuned order)').manipulators([
+  // Left hand, pinky -> index: Ctrl, Opt, Shift, Cmd
+  map('a').to('left_control').toIfAlone('a'),
   map('s').to('left_option').toIfAlone('s'),
-  map('d').to('left_control').toIfAlone('d'),
-  map('f').to('left_shift').toIfAlone('f'),
+  map('d').to('left_shift').toIfAlone('d'),
+  map('f').to('left_command').toIfAlone('f'),
 
-  // Right hand, index -> pinky (mirrored)
-  map('j').to('right_shift').toIfAlone('j'),
-  map('k').to('right_control').toIfAlone('k'),
+  // Right hand, index -> pinky (mirrored): Cmd, Shift, Opt, Ctrl
+  map('j').to('right_command').toIfAlone('j'),
+  map('k').to('right_shift').toIfAlone('k'),
   map('l').to('right_option').toIfAlone('l'),
-  map('semicolon').to('right_command').toIfAlone('semicolon'),
+  map('semicolon').to('right_control').toIfAlone('semicolon'),
 ])
 
 // --- Nav layer: hold Caps Lock (left pinky), tap = Escape. Content on right hand. ---
@@ -33,7 +40,7 @@ const navLayer = layer('caps_lock', 'nav')
     map('m').to('delete_forward'),
   ])
 
-// --- Sym layer: hold Space (a real thumb key), tap = Space. Content on left hand. ---
+// --- Sym layer: hold Space (a real thumb key), tap = Space. Content on both hands. ---
 // .delay(): Space is hit constantly mid-word, so fast typing has real rollover
 // (next key goes down before Space comes up). Without delay mode that reads as
 // "held", silently swallowing the space. Delay mode only arms the layer after
@@ -41,6 +48,7 @@ const navLayer = layer('caps_lock', 'nav')
 const symLayer = layer('spacebar', 'sym')
   .delay()
   .manipulators([
+    // Left hand
     map('q').to('1', '⇧'), // !
     map('w').to('2', '⇧'), // @
     map('e').to('3', '⇧'), // #
@@ -56,6 +64,17 @@ const symLayer = layer('spacebar', 'sym')
     map('c').to('9', '⇧'), // (
     map('v').to('0', '⇧'), // )
     map('b').to('hyphen', '⇧'), // _
+
+    // Right hand: shifted version of whatever's already on that physical key
+    map('quote').to('quote', '⇧'), // "
+    map('comma').to('comma', '⇧'), // <
+    map('period').to('period', '⇧'), // >
+    map('slash').to('slash', '⇧'), // ?
+    map('semicolon').to('semicolon', '⇧'), // :
+    map('h').to('backslash', '⇧'), // |
+    map('y').to('7', '⇧'), // &
+    map('u').to('8', '⇧'), // *
+    map('n').to('equal_sign', '⇧'), // +
   ])
 
 // --- Num layer: hold Return (right pinky, mirrors Caps Lock), tap = Enter. Content on left hand. ---
@@ -99,4 +118,14 @@ const funLayer = layer('tab', 'fun')
     map('period').toConsumerKey('fast_forward'),
   ])
 
-writeToProfile(profile, [homeRowMods, navLayer, symLayer, numLayer, funLayer])
+// Rule order matters: Karabiner applies the FIRST matching manipulator in
+// document order and ignores the rest, with no special treatment for
+// conditioned vs unconditioned ones. Layer rules (conditioned on their
+// variable) must come before the unconditioned home row mods rule, or the
+// home row mods would always win on every key they share (a/s/d/f, j/k/l/;)
+// and the layers' own remaps of those keys would never fire.
+writeToProfile(
+  profile,
+  [navLayer, symLayer, numLayer, funLayer, homeRowMods],
+  { 'basic.to_if_alone_timeout_milliseconds': 250 },
+)
