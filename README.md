@@ -20,6 +20,13 @@ Then switch to the `TS-custom` profile in Karabiner-Elements' menu bar icon
 or Settings → Profiles. Edits hot-reload — no need to restart Karabiner
 after `npm run apply`.
 
+`npm run apply` also writes `karabiner.generated.json` — a tracked, readable
+copy of exactly what got generated, for reference. It's built directly from
+the same in-memory rule objects passed to `writeToProfile`, not by reading
+`karabiner.json` back afterward — that file is also watched/rewritten by
+Karabiner-Elements' own background process, and an immediate read-back once
+raced it and truncated the live config to 0 bytes.
+
 ## Home row mods
 
 Hold for a modifier, tap for the letter. Mirrored across both hands, and
