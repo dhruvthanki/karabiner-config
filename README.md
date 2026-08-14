@@ -11,14 +11,36 @@ Profiles), so the Default profile is left untouched.
 
 ## Setup
 
-```
-npm install
-npm run apply   # writes rules into ~/.config/karabiner/karabiner.json
-```
+1. Install [Karabiner-Elements](https://karabiner-elements.pqrs.org/) and
+   grant it Input Monitoring permission when macOS prompts for it.
+2. In Karabiner-Elements, go to Settings → Profiles and add a new profile
+   named exactly **`TS-custom`**. `writeToProfile()` writes into an
+   *existing* profile by name — it doesn't create one, and errors if it's
+   missing.
+3. Clone this repo and install dependencies:
 
-Then switch to the `TS-custom` profile in Karabiner-Elements' menu bar icon
-or Settings → Profiles. Edits hot-reload — no need to restart Karabiner
-after `npm run apply`.
+   ```
+   git clone git@github.com:dhruvthanki/karabiner-config.git
+   cd karabiner-config
+   npm install
+   ```
+
+4. Generate and apply the rules:
+
+   ```
+   npm run apply   # writes rules into ~/.config/karabiner/karabiner.json
+   ```
+
+5. Switch to the `TS-custom` profile (Karabiner-Elements' menu bar icon or
+   Settings → Profiles) if it isn't already selected.
+
+Edits hot-reload — no need to restart Karabiner after `npm run apply`. If a
+change doesn't seem to take effect, restarting just the service that applies
+rules can force a clean reload without restarting the whole app:
+
+```
+launchctl kickstart -k gui/$(id -u)/org.pqrs.service.agent.karabiner_console_user_server
+```
 
 `npm run apply` also writes `karabiner.generated.json` — a tracked, readable
 copy of exactly what got generated, for reference. It's built directly from
