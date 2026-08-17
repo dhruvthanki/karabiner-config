@@ -1,53 +1,22 @@
 # karabiner-config
 
-Personal macOS keyboard config, written in TypeScript with
-[karabiner.ts](https://github.com/evan-liu/karabiner.ts) and compiled into
-Karabiner-Elements' `complex_modifications` rules. Built to bring home row
-mods and layers from a 40% split ortholinear keyboard onto a normal
-system-wide keyboard.
+Personal keyboard config, now written for [kanata](https://github.com/jtroo/kanata)
+instead of Karabiner-Elements. Built to bring home row mods and layers from a
+40% split ortholinear keyboard onto a normal system-wide keyboard — and to
+run identically on both a MacBook and a Lenovo laptop on CachyOS/niri, since
+kanata (unlike Karabiner-Elements) works on both macOS and Linux.
 
-Applies to the **`TS-custom`** profile in Karabiner-Elements (Settings →
-Profiles), so the Default profile is left untouched.
+`kanata.kbd` is the single source of truth: one plain file, byte-identical on
+both machines. Nothing in the actual remap logic differs between macOS and
+Linux for this config — every construct and key name used here is portable —
+so all OS-specific work lives in the surrounding *service* setup (driver/
+permissions/daemon on macOS vs uinput/udev/systemd on Linux), never in the
+config file itself.
 
-## Setup
-
-1. Install [Karabiner-Elements](https://karabiner-elements.pqrs.org/) and
-   grant it Input Monitoring permission when macOS prompts for it.
-2. In Karabiner-Elements, go to Settings → Profiles and add a new profile
-   named exactly **`TS-custom`**. `writeToProfile()` writes into an
-   *existing* profile by name — it doesn't create one, and errors if it's
-   missing.
-3. Clone this repo and install dependencies:
-
-   ```
-   git clone git@github.com:dhruvthanki/karabiner-config.git
-   cd karabiner-config
-   npm install
-   ```
-
-4. Generate and apply the rules:
-
-   ```
-   npm run apply   # writes rules into ~/.config/karabiner/karabiner.json
-   ```
-
-5. Switch to the `TS-custom` profile (Karabiner-Elements' menu bar icon or
-   Settings → Profiles) if it isn't already selected.
-
-Edits hot-reload — no need to restart Karabiner after `npm run apply`. If a
-change doesn't seem to take effect, restarting just the service that applies
-rules can force a clean reload without restarting the whole app:
-
-```
-launchctl kickstart -k gui/$(id -u)/org.pqrs.service.agent.karabiner_console_user_server
-```
-
-`npm run apply` also writes `karabiner.generated.json` — a tracked, readable
-copy of exactly what got generated, for reference. It's built directly from
-the same in-memory rule objects passed to `writeToProfile`, not by reading
-`karabiner.json` back afterward — that file is also watched/rewritten by
-Karabiner-Elements' own background process, and an immediate read-back once
-raced it and truncated the live config to 0 bytes.
+This repo previously generated a Karabiner-Elements `TS-custom` profile from
+a TypeScript file using the [karabiner.ts](https://github.com/evan-liu/karabiner.ts)
+library. See git history (before the kanata port) for that version, and
+[Rollback](#rollback) below if you ever need to resurrect it.
 
 ## Home row mods
 
@@ -65,10 +34,7 @@ Cmd sits on the index finger, not the pinky like the common GACS default):
 ## Layers
 
 Each layer activates by holding its trigger key; tapping the trigger key
-alone still sends its normal key. Space and Return use karabiner.ts's
-`.delay()` mode, since both are hit constantly mid-word/mid-line — without
-it, fast typing rollover reads as "held" and silently swallows the
-space/enter.
+alone still sends its normal key.
 
 ### Nav — hold Caps Lock (tap = Escape)
 
@@ -109,31 +75,173 @@ Number row becomes F-keys, right hand becomes media controls:
 
 | Key | 1-0 | h | l | j | k | ; | n | , | . |
 |---|---|---|---|---|---|---|---|---|---|
-| Sends | F1-F10 | Brightness − | Brightness + | Volume − | Volume + | Mute | Play/Pause | Rewind | Fast-forward |
+| Sends | F1-F10 | Brightness − | Brightness + | Volume − | Volume + | Mute | Play/Pause | Previous track | Next track |
+
+## Setup — macOS
+
+1. Install kanata **from `main`, not the stable formula**:
+   ```
+   brew install --HEAD kanata
+   ```
+   (If a stable `kanata` is already installed: `brew unlink kanata` first.)
+   Why: kanata's macOS backend talks to Karabiner's
+   `Karabiner-DriverKit-VirtualHIDDevice` driver over a versioned protocol.
+   Karabiner-Elements 16.1.0+ bundles driver **v8.0.0** (protocol 7), but
+   the current stable kanata release (1.12.0) only speaks the older
+   protocol 5 (driver v6.2.0) — connecting fails with a repeating
+   `connect_failed asio.system:2` in the logs. `main` already depends on
+   `karabiner-driverkit v0.4.0`, the protocol-7 client that matches.
+   Re-check this once kanata ships a stable v1.13.0+ release — the docs'
+   own driver-compatibility table (`docs/setup-macos.md`) says v1.13.0 is
+   the first stable line to require v8.0.0, so a plain `brew install kanata`
+   should work again then.
+2. Copy this repo's `kanata.kbd` to `~/.config/kanata/kanata.kbd`.
+3. Validate before touching anything else (pure syntax check, no input
+   grab, zero lockout risk): `kanata --cfg ~/.config/kanata/kanata.kbd --check`.
+4. Confirm the device filter matches your hardware. `kanata.kbd`'s `defcfg`
+   hardcodes `macos-dev-names-include ("Apple Internal Keyboard / Trackpad")`
+   — without this, kanata grabs *every* enumerated keyboard, including its
+   own virtual output device (and Karabiner's separate virtual keyboard),
+   which feeds output back in as input and makes a held key repeat forever.
+   Run `kanata --list` to see your exact device names if you're on
+   different hardware (e.g. an external keyboard) and adjust the list.
+5. Grant permissions: `sudo kanata --macos-request-permissions`. In practice
+   this reported "trusted" immediately when run from Terminal — a root
+   process launched from an already-trusted terminal commonly doesn't need
+   a separate visible entry in System Settings → Privacy & Security. If
+   remapping doesn't work at all once running, check Input Monitoring /
+   Accessibility there as a first troubleshooting step.
+6. **Stop Karabiner-Elements' low-level grab** — this is the step that
+   actually matters, more than which profile is selected. Karabiner-Elements
+   grabs the physical keyboard exclusively via a background LaunchDaemon
+   (`Karabiner-Core-Service`) regardless of which profile is active or
+   whether the GUI app is even running — quitting the app via its menu bar
+   does *not* stop this daemon. Confirmed via `--debug`: without stopping
+   it, kanata logs `IOHIDDeviceOpen error: ... exclusive access and device
+   already open` and behaves erratically (tap-hold resolves incorrectly).
+   Stop it with:
+   ```
+   sudo launchctl bootout system/org.pqrs.service.daemon.Karabiner-Core-Service
+   ```
+   This is reversible — relaunching Karabiner-Elements.app re-bootstraps it,
+   as does a reboot. Also switch the active profile from `TS-custom` to
+   `Default` (Settings → Profiles, or `karabiner_cli --select-profile
+   "Default profile"`) so that if Core-Service does restart later (e.g.
+   after a reboot, before you've run this command again), it isn't
+   reapplying `TS-custom`'s rules. Don't delete `TS-custom` or its rules —
+   it's the rollback path.
+7. **Before running kanata for real**, enable Remote Login (System Settings
+   → General → Sharing) as an SSH escape hatch — this config remaps Space,
+   Tab, Return, and Caps Lock, so a broken config could make typing
+   unusable system-wide.
+8. Foreground supervised test run, terminal kept in focus (Ctrl+C = instant
+   kill switch): `sudo kanata --cfg ~/.config/kanata/kanata.kbd --no-wait`.
+   Exercise tap-alone behavior, normal-speed typing (watch for misfired
+   home row mods), a deliberate hold-and-chord (e.g. Cmd+C), and every
+   layer's content including media keys. If something seems off, rerun with
+   `--debug` — the `key press`/`key release` lines show exactly what each
+   physical key resolved to, which is far more reliable than judging from
+   visible output alone. Note: `sudo` on this Mac allocates a separate
+   pseudo-tty for the actual command, so `ps aux | grep kanata` showing two
+   process rows for one `sudo kanata ...` invocation is normal, not a
+   duplicate instance — don't chase that as a bug.
+9. Only once confident, promote to a persistent service:
+   `sudo brew services start kanata` (the formula's service block already
+   sets `require_root`, `keep_alive`, and logs to `var/log/kanata.log`).
+   `macos/dev.kanata.kanata.plist` in this repo is a reference LaunchDaemon
+   plist, kept only as a documented fallback if ever installing outside
+   Homebrew.
+
+## Setup — CachyOS / Linux (niri)
+
+1. `paru -S kanata-bin` (or `kanata-git`).
+2. `sudo groupadd --system uinput` (must be `--system`/`-r` — a systemd
+   ≥258 regression breaks non-system uinput groups), then
+   `sudo usermod -aG input,uinput $USER`, `sudo modprobe uinput` (and add
+   `uinput` to `/etc/modules-load.d/uinput.conf` for boot persistence).
+3. Install `linux/99-input.rules` to `/etc/udev/rules.d/`, then
+   `sudo udevadm control --reload-rules && sudo udevadm trigger`.
+4. Log out/in (or `newgrp uinput`) for group membership to take effect.
+5. Copy this repo's `kanata.kbd` to `~/.config/kanata/kanata.kbd` — no
+   edits needed, it's the same file used on macOS.
+6. Validate: `kanata --cfg ~/.config/kanata/kanata.kbd --check`.
+7. Install `linux/kanata.service` to `~/.config/systemd/user/kanata.service`,
+   then `systemctl --user daemon-reload && systemctl --user enable --now kanata`.
+
+### niri media keys
+
+kanata emits standard consumer keycodes for volume/brightness/play-pause/
+track-skip, but niri is a minimal compositor with no shell of its own — it
+won't act on those keycodes without an explicit keybind. Add binds to
+`~/.config/niri/config.kdl` calling `wpctl`, `brightnessctl`, and
+`playerctl`, e.g.:
+
+```kdl
+binds {
+    XF86AudioRaiseVolume  { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume  { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute         { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86MonBrightnessUp   { spawn "brightnessctl" "set" "5%+"; }
+    XF86MonBrightnessDown { spawn "brightnessctl" "set" "5%-"; }
+    XF86AudioPlay         { spawn "playerctl" "play-pause"; }
+}
+```
+
+Confirm the exact bind-name spellings on-device — they depend on niri's
+keymap/xkb layer, not just on what kanata emits.
 
 ## Design notes
 
-- **Home row mods use `to_if_held_down`, not plain `to`.** Plain
-  `to()`+`toIfAlone()` combines with a second key the instant it's pressed,
-  with no timing check — so fast rolling typing (e.g. "ah") can read as a
-  modifier hold and misfire, same class of bug as the Space/Return rollover
-  issue. Each home row mod now requires a genuine ~200ms hold
-  (`MOD_HOLD_MS`) before it arms as a modifier; if another key interrupts
-  before that, `to_delayed_action`'s `to_if_canceled` sends the plain
-  letter instead. This is Karabiner's own documented pattern for "letter
-  key acts as a modifier when held" (see their example: "Change f key to
-  left shift when held down"). Tradeoff: deliberate chords like Cmd+C now
-  need an actual ~200ms hold, not just a keypress — tune `MOD_HOLD_MS` in
-  `index.ts` if that feels too slow or too trigger-happy.
-- **Rule order matters.** Karabiner applies only the first matching
-  manipulator in document order, with no special priority for conditioned
-  vs. unconditioned ones. The four layers are listed before the home row
-  mods rule in `index.ts` — if home row mods came first, its unconditioned
-  mappings on `a s d f` / `j k l ;` would always win, and the Sym/Num/Nav
-  content on those same keys would never fire.
-- **Physical modifier keys (Right Option/Command) can't be layer
-  triggers** — karabiner.ts's `layer()` rejects raw modifier key codes at
-  runtime. Space and Return were used instead (thumb key + pinky mirror of
-  Caps Lock).
-- `basic.to_if_alone_timeout_milliseconds` is set to `250` profile-wide
-  instead of relying on Karabiner's default.
+- **Plain `tap-hold`, not `tap-hold-except-keys`, for home row mods and
+  Space/Return.** An earlier draft used `tap-hold-except-keys` with every
+  key listed as an interrupt, aiming to match the original's "any other
+  key cancels to a tap" rollover guard. That backfired: the tap-keys list
+  forces an instant tap the moment *any* listed key is pressed, regardless
+  of how long the mod key was already held — and since the list held every
+  key (needed for rollover safety), it also broke every same-hand
+  modifier+letter chord (Cmd+C, Cmd+V, etc. — Cmd lives on `f`, same hand
+  as `c`/`v`), and broke Space/Return's own layers, since reaching any
+  layer key requires pressing "another key" too. Confirmed empirically via
+  `--debug`: holding `f` for 2.5 real seconds then pressing `c` still
+  resolved as a tap under `tap-hold-except-keys`; switching to plain
+  `tap-hold` (no keys list at all — matching kanata's own
+  `cfg_samples/home-row-mod-basic.kbd`) fixed it immediately. Caps Lock and
+  Tab still use `tap-hold-press` (the layer goes live the instant another
+  key is *pressed*, no rollover guard at all) — matching the original
+  config's pre-existing, deliberate lack of a rollover guard on those two
+  keys specifically.
+- **Timing**: home row mods and Space/Return use a 200ms threshold; Caps/Tab
+  use 250ms. These numbers come from tracing the exact defaults the old
+  karabiner.ts config resolved to (its own library default for delay-mode
+  layers, and the profile-wide alone-timeout for the non-delay ones) — not
+  arbitrary choices. Tune the `defvar` block in `kanata.kbd` if any of these
+  feel too slow or too trigger-happy.
+- **Layer fallthrough via `_`**: each overlay layer (`nav`/`sym`/`num`/`fun`)
+  only overrides the exact keys its karabiner.ts equivalent claimed;
+  everything else is `_` (transparent), falling through to `base` — which is
+  what keeps home row mods live on the keys a given layer doesn't touch
+  (e.g. left-hand home row mods still work while the Nav layer, right-hand
+  only, is held).
+- **One shared file, no per-OS forking.** All remap logic and key names used
+  here are portable across kanata's macOS and Linux builds — the only things
+  that differ between machines are the surrounding service/permission setup
+  (see the two Setup sections above), never `kanata.kbd` itself.
+- **Two macOS-only gotchas that aren't about the config's remap logic**, both
+  found by running with `--debug` rather than guessing from behavior alone:
+  (1) kanata's driver-protocol version must match Karabiner-Elements'
+  bundled driver, which required building from `main` instead of the
+  stable release (see Setup step 1); (2) Karabiner-Elements' own background
+  `Core-Service` daemon holds an exclusive grab on the physical keyboard
+  independent of which profile is active, and must be stopped explicitly
+  (see Setup step 6) — switching profiles alone does nothing to release it.
+
+## Rollback
+
+- **macOS**: Karabiner-Elements' `TS-custom` profile and its rules are never
+  deleted during the cutover, only deselected — reactivate it any time via
+  the Karabiner-Elements menu bar icon → Profiles, no git involved.
+- **Full revert to the old karabiner.ts pipeline**: check out `index.ts`,
+  `karabiner.generated.json`, `package.json`, and `package-lock.json` from
+  the commit before the kanata port, then `npm install && npm run apply`.
+- **Linux**: no prior state to roll back to (first-time setup) —
+  `systemctl --user disable --now kanata` to stop.

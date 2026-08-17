@@ -1,0 +1,137 @@
+;; Personal keyboard config, kanata edition. Ported from the karabiner.ts
+;; pipeline (see git history) so the same config drives both a macOS
+;; Karabiner-free setup and a CachyOS/niri Linux box. One file, byte-identical
+;; on both machines -- see README for setup/testing/rollback steps.
+
+(defcfg
+  ;; Lets kanata see keypresses on keys outside defsrc too (arrows, o/p/
+  ;; brackets/etc), so its internal event timeline stays consistent even
+  ;; when you type keys this config never remaps.
+  process-unmapped-keys yes
+
+  ;; macOS only: without this, kanata grabs every enumerated keyboard,
+  ;; including its own virtual output device (and/or Karabiner-Elements'
+  ;; separate virtual keyboard) -- causing an input/output feedback loop
+  ;; (a held key repeats forever). Restrict to the real physical keyboard.
+  ;; TODO before the CachyOS port: confirm this key is a harmless no-op (or
+  ;; needs a platform-scoped override) on kanata's Linux build.
+  macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
+)
+
+(defsrc
+  1    2    3    4    5    6    7    8    9    0
+  q    w    e    r    t    y    u    i
+  caps a    s    d    f    g    h    j    k    l    scln apo
+  z    x    c    v    b    n    m    comm .    /
+  tab  spc  ret
+)
+
+(defvar
+  ;; Home row mods: hold past this threshold with no interruption -> the
+  ;; modifier fires. Interrupted by any other key before that -> plain
+  ;; letter. Matches the old MOD_HOLD_MS in index.ts.
+  mod-tap 200
+  mod-hold 200
+
+  ;; Space/Return layers: same interruption-cancels-to-tap behavior as the
+  ;; home row mods. This is 200ms, NOT the profile-wide 250 used below for
+  ;; Caps/Tab -- karabiner.ts's `.delay()` (called with no args on these two)
+  ;; pulled its own library default of 200ms, not the profile's
+  ;; to_if_alone_timeout. Verified against the installed karabiner.ts source.
+  delay-tap 200
+  delay-hold 200
+
+  ;; Caps/Tab layers: no rollover guard in the original (deliberate, not a
+  ;; bug) -- the layer goes live the instant another key is pressed, no
+  ;; interruption-cancels-to-tap behavior. 250ms is the profile-wide
+  ;; basic.to_if_alone_timeout_milliseconds from index.ts, which is what
+  ;; actually governed these two keys' tap-alone window.
+  press-tap 250
+  press-hold 250
+)
+
+(defalias
+  ;; --- Home row mods: Mac-tuned order (Ctrl/Opt/Shift/Cmd pinky->index,
+  ;; mirrored on the right hand as Cmd/Shift/Opt/Ctrl index->pinky) ---
+  ;;
+  ;; Plain tap-hold, not tap-hold-except-keys: except-keys' tap-keys list
+  ;; forces an instant tap the moment ANY listed key is pressed, regardless
+  ;; of how long the mod key was already held -- with every key in that
+  ;; list (needed for rollover safety), that also kills every same-hand
+  ;; modifier+letter chord (e.g. Cmd+C, since Cmd lives on f, same hand as
+  ;; c). Confirmed empirically: holding f 2.5s then pressing c still
+  ;; resolved as a tap under except-keys, but resolved correctly as
+  ;; lmet+c under plain tap-hold. Matches kanata's own basic home-row-mod
+  ;; sample (cfg_samples/home-row-mod-basic.kbd), which also uses plain
+  ;; tap-hold with no tap-keys list.
+  a    (tap-hold $mod-tap $mod-hold a lctl)
+  s    (tap-hold $mod-tap $mod-hold s lalt)
+  d    (tap-hold $mod-tap $mod-hold d lsft)
+  f    (tap-hold $mod-tap $mod-hold f lmet)
+  j    (tap-hold $mod-tap $mod-hold j rmet)
+  k    (tap-hold $mod-tap $mod-hold k rsft)
+  l    (tap-hold $mod-tap $mod-hold l ralt)
+  scln (tap-hold $mod-tap $mod-hold scln rctl)
+
+  ;; --- Layer triggers ---
+  ;; Space/Return: same except-keys bug applies here too -- accessing any
+  ;; layer key requires pressing "another key," which was always in
+  ;; $other-keys and always canceled the layer to a plain space/enter tap.
+  ;; Switched to plain tap-hold for the same reason as the home row mods.
+  caps (tap-hold-press $press-tap $press-hold esc (layer-while-held nav))
+  tab  (tap-hold-press $press-tap $press-hold tab (layer-while-held fun))
+  spc  (tap-hold $delay-tap $delay-hold spc (layer-while-held sym))
+  ret  (tap-hold $delay-tap $delay-hold ret (layer-while-held num))
+)
+
+(deflayer base
+  1     2    3    4    5    6    7    8    9    0
+  q     w    e    r    t    y    u    i
+  @caps @a   @s   @d   @f   g    h    @j   @k   @l   @scln apo
+  z     x    c    v    b    n    m    comm .    /
+  @tab  @spc @ret
+)
+
+;; --- Nav layer: hold Caps Lock (tap = Escape). Right-hand vim-ish nav +
+;; home/end/page/delete. Positions not listed here stay `_` (transparent),
+;; which is what keeps e.g. left-hand home row mods (@a @s @d @f) live while
+;; this layer is held -- the direct equivalent of the original's rule-order
+;; comment ("layers must precede the unconditioned home row mods rule").
+(deflayer nav
+  _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    home pgdn pgup
+  _    _    _    _    _    _    left down up   rght end  _
+  _    _    _    _    _    bspc del  _    _    _
+  _    _    _
+)
+
+;; --- Sym layer: hold Space (tap = Space). Symbols on both hands; j k l stay
+;; live as home row mods (untouched by the original symLayer).
+(deflayer sym
+  _    _    _    _    _    _    _    _    _    _
+  S-1  S-2  S-3  S-4  S-5  S-7  S-8  _
+  _    min  eql  lbrc rbrc bksl S-bksl _   _    _    S-scln S-apo
+  grv  S-grv S-9 S-0  S-min S-eql _   S-comm S-. S-/
+  _    _    _
+)
+
+;; --- Num layer: hold Return (tap = Enter). Numpad-shaped block on the left
+;; hand only; f and all of j k l scln stay live as home row mods.
+(deflayer num
+  _    _    _    _    _    _    _    _    _    _
+  7    8    9    _    _    _    _    _
+  _    4    5    6    _    _    _    _    _    _    _    _
+  1    2    3    0    _    _    _    _    _    _
+  _    _    _
+)
+
+;; --- Fun layer: hold Tab (tap = Tab). Number row -> F-keys, right hand ->
+;; media keys. Left-hand home row mods stay live (untouched by the original
+;; funLayer).
+(deflayer fun
+  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10
+  _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    brdn vold volu brup mute _
+  _    _    _    _    _    pp   _    prev next _
+  _    _    _
+)
