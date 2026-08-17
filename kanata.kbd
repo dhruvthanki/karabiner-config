@@ -13,8 +13,10 @@
   ;; including its own virtual output device (and/or Karabiner-Elements'
   ;; separate virtual keyboard) -- causing an input/output feedback loop
   ;; (a held key repeats forever). Restrict to the real physical keyboard.
-  ;; TODO before the CachyOS port: confirm this key is a harmless no-op (or
-  ;; needs a platform-scoped override) on kanata's Linux build.
+  ;; Confirmed harmless no-op on Linux: this key is behind a
+  ;; #[cfg(target_os = "macos")] in kanata's defcfg parser, so it still
+  ;; matches (no "unknown defcfg option" error) but the body compiles to
+  ;; nothing on the Linux build.
   macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
 )
 
