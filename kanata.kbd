@@ -1,7 +1,9 @@
-;; Personal keyboard config, kanata edition. Ported from the karabiner.ts
-;; pipeline (see git history) so the same config drives both a macOS
-;; Karabiner-free setup and a CachyOS/niri Linux box. One file, byte-identical
-;; on both machines -- see README for setup/testing/rollback steps.
+;; Personal keyboard config for the CachyOS/niri Lenovo laptop, using kanata.
+;; A hand-maintained port of the same layout as this repo's macOS config
+;; (index.ts, compiled via karabiner.ts into Karabiner-Elements) -- macOS
+;; stayed on Karabiner-Elements after kanata hit an unresolved permission
+;; issue there (see README's "CachyOS / Linux (kanata)" section). Keep the
+;; two configs' *design* in sync by hand; they're maintained separately.
 
 (defcfg
   ;; Lets kanata see keypresses on keys outside defsrc too (arrows, o/p/
@@ -13,8 +15,10 @@
   ;; including its own virtual output device (and/or Karabiner-Elements'
   ;; separate virtual keyboard) -- causing an input/output feedback loop
   ;; (a held key repeats forever). Restrict to the real physical keyboard.
-  ;; TODO before the CachyOS port: confirm this key is a harmless no-op (or
-  ;; needs a platform-scoped override) on kanata's Linux build.
+  ;; Confirmed harmless no-op on Linux: this key is behind a
+  ;; #[cfg(target_os = "macos")] in kanata's defcfg parser, so it still
+  ;; matches (no "unknown defcfg option" error) but the body compiles to
+  ;; nothing on the Linux build.
   macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
 )
 
