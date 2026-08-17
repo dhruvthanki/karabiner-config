@@ -1,13 +1,18 @@
 # karabiner-config
 
-Personal macOS keyboard config, written in TypeScript with
-[karabiner.ts](https://github.com/evan-liu/karabiner.ts) and compiled into
-Karabiner-Elements' `complex_modifications` rules. Built to bring home row
-mods and layers from a 40% split ortholinear keyboard onto a normal
-system-wide keyboard.
+Personal keyboard config, bringing home row mods and layers from a 40%
+split ortholinear keyboard onto normal system-wide keyboards on two
+machines:
 
-Applies to the **`TS-custom`** profile in Karabiner-Elements (Settings →
-Profiles), so the Default profile is left untouched.
+- **macOS** (this MacBook): written in TypeScript with
+  [karabiner.ts](https://github.com/evan-liu/karabiner.ts), compiled into
+  Karabiner-Elements' `complex_modifications` rules. Applies to the
+  **`TS-custom`** profile (Settings → Profiles), so the Default profile is
+  left untouched. See Setup below.
+- **CachyOS/niri** (Lenovo laptop): a separate, hand-maintained
+  [kanata](https://github.com/jtroo/kanata) config, `kanata.kbd` — see
+  [CachyOS / Linux (kanata)](#cachyos--linux-kanata) further down for why
+  it's a second file rather than one shared config.
 
 ## Setup
 
@@ -137,3 +142,62 @@ Number row becomes F-keys, right hand becomes media controls:
   Caps Lock).
 - `basic.to_if_alone_timeout_milliseconds` is set to `250` profile-wide
   instead of relying on Karabiner's default.
+
+## CachyOS / Linux (kanata)
+
+`kanata.kbd` is a **separate, hand-maintained** port of this same layout for
+the Lenovo laptop on CachyOS/niri, using [kanata](https://github.com/jtroo/kanata)
+instead of Karabiner-Elements (which is macOS-only). A single-shared-file
+attempt across both machines was tried and abandoned: kanata currently has no
+reliable way to get Input Monitoring/Accessibility permission for a
+`sudo`-run process started by anything other than a manually-opened Terminal
+window on macOS Tahoe (a known, open upstream issue — see
+[kanata#1211](https://github.com/jtroo/kanata/issues/1211)), so macOS stays
+on karabiner.ts/Karabiner-Elements and only the Lenovo uses kanata. Keep the
+two files' *design* in sync manually — if you change a mapping here, mirror
+it in `kanata.kbd`.
+
+**Setup on CachyOS:**
+1. `paru -S kanata-bin` (or `kanata-git`).
+2. `sudo groupadd --system uinput` (must be `--system`/`-r` — a systemd
+   ≥258 regression breaks non-system uinput groups), then
+   `sudo usermod -aG input,uinput $USER`, `sudo modprobe uinput` (and add
+   `uinput` to `/etc/modules-load.d/uinput.conf` for boot persistence).
+3. Install `linux/99-input.rules` to `/etc/udev/rules.d/`, then
+   `sudo udevadm control --reload-rules && sudo udevadm trigger`.
+4. Log out/in (or `newgrp uinput`) for group membership to take effect.
+5. Copy `kanata.kbd` to `~/.config/kanata/kanata.kbd`.
+6. Validate: `kanata --cfg ~/.config/kanata/kanata.kbd --check`.
+7. Install `linux/kanata.service` to `~/.config/systemd/user/kanata.service`,
+   then `systemctl --user daemon-reload && systemctl --user enable --now kanata`.
+
+**niri media keys**: kanata emits standard consumer keycodes for volume/
+brightness/play-pause/track-skip, but niri is a minimal compositor with no
+shell of its own — it won't act on those keycodes without an explicit
+keybind. Add binds to `~/.config/niri/config.kdl` calling `wpctl`,
+`brightnessctl`, and `playerctl`, e.g.:
+
+```kdl
+binds {
+    XF86AudioRaiseVolume  { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume  { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute         { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86MonBrightnessUp   { spawn "brightnessctl" "set" "5%+"; }
+    XF86MonBrightnessDown { spawn "brightnessctl" "set" "5%-"; }
+    XF86AudioPlay         { spawn "playerctl" "play-pause"; }
+}
+```
+
+Confirm the exact bind-name spellings on-device — they depend on niri's
+keymap/xkb layer, not just on what kanata emits.
+
+**kanata design note carried over from the abandoned macOS attempt**: use
+plain `tap-hold`, not `tap-hold-except-keys`, for home row mods and the
+Space/Return layers (already how `kanata.kbd` is written). `except-keys`'
+tap-keys list forces an instant tap the moment *any* listed key is pressed,
+regardless of how long the mod key was already held — with every key in
+that list (needed for rollover safety), it also breaks every same-hand
+modifier+letter chord and the layers' own key access, since reaching a
+layer key means pressing "another key" too. Confirmed via `--debug` during
+macOS testing; matches kanata's own `cfg_samples/home-row-mod-basic.kbd`,
+which also uses plain `tap-hold`.
