@@ -154,6 +154,10 @@ Number row becomes F-keys, right hand becomes media controls:
 
 ## Setup — CachyOS / Linux (niri)
 
+**Confirmed working** on a Lenovo laptop running CachyOS/niri — home row
+mods, all four hold-layers, and the Fun layer's media keys (via niri's
+existing `noctalia msg` binds) all check out.
+
 1. `paru -S kanata-bin` (or `kanata-git`).
 2. `sudo groupadd --system uinput` (must be `--system`/`-r` — a systemd
    ≥258 regression breaks non-system uinput groups), then
@@ -162,11 +166,24 @@ Number row becomes F-keys, right hand becomes media controls:
 3. Install `linux/99-input.rules` to `/etc/udev/rules.d/`, then
    `sudo udevadm control --reload-rules && sudo udevadm trigger`.
 4. Log out/in (or `newgrp uinput`) for group membership to take effect.
+   **A plain niri logout/login may not be enough**: if your `systemd --user`
+   manager survives the relogin (it isn't always torn down just because the
+   graphical session restarted), processes it spawns keep the old
+   supplementary-group list and `/dev/uinput` stays permission-denied even
+   though `id $USER` shows the new groups system-wide. Confirmed via
+   `ps -o pid,cmd -p $(pgrep alacritty)` and `/proc/<pid>/status` showing
+   the terminal's `Groups:` line missing `uinput`/`input` right after a
+   niri relogin. A full reboot is the reliable fix.
 5. Copy this repo's `kanata.kbd` to `~/.config/kanata/kanata.kbd` — no
    edits needed, it's the same file used on macOS.
 6. Validate: `kanata --cfg ~/.config/kanata/kanata.kbd --check`.
-7. Install `linux/kanata.service` to `~/.config/systemd/user/kanata.service`,
-   then `systemctl --user daemon-reload && systemctl --user enable --now kanata`.
+7. Foreground supervised test run first, same reasoning as the macOS setup
+   (Ctrl+C kill switch, terminal kept in focus):
+   `kanata --cfg ~/.config/kanata/kanata.kbd --no-wait`.
+8. Only once confident, install `linux/kanata.service` to
+   `~/.config/systemd/user/kanata.service`, then stop the foreground
+   instance and hand off to the service: `systemctl --user daemon-reload &&
+   systemctl --user enable --now kanata`.
 
 ### niri media keys
 
